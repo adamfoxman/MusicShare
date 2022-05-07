@@ -4,8 +4,6 @@ from nextcord.ext import commands
 from dotenv import load_dotenv
 import logging
 
-debug_guild = [967448609677266944]
-
 logging.basicConfig(
     filename="main.log",
     format="%(asctime)s:%(levelname)s:%(message)s",

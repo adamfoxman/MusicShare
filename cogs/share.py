@@ -1,9 +1,11 @@
+import os
+
 from nextcord.ext import commands
 import nextcord
 import logging
 from songlink.songlink import SongLink
 
-debug_guild = [967448609677266944]
+debug_guild = list(map(int, os.getenv("DEBUG_GUILDS").split(",")))
 
 stream_platforms = {
     'spotify': 'Spotify',
