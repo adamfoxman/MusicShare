@@ -28,17 +28,6 @@ class Share(commands.Cog):
         self.songlink = SongLink()
 
     @nextcord.slash_command(
-        guild_ids=debug_guild
-    )
-    async def hello(self, interaction: nextcord.Interaction):
-        embed = nextcord.Embed(
-            title="Hello",
-            description="Hello, world!",
-            color=0x00FF00
-        )
-        await interaction.send(embed=embed)
-
-    @nextcord.slash_command(
         guild_ids=debug_guild,
         name="share",
         description="Share a song with your friends"
