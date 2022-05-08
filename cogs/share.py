@@ -24,7 +24,17 @@ buy_platforms = {
 
 
 def shorten_summary(summary: str) -> str:
-    return summary.split("\n")[0]
+    first_paragraph = summary.split('\n')[0]
+    #  find markdown link in summary
+    link_start = summary.find('<a href="')
+    link_end = summary.find('">')
+    link = summary[link_start+9:link_end]
+    #  find title of link
+    title_start = summary.find('">')
+    title_end = summary.find('</a>')
+    title = summary[title_start+2:title_end]
+    #  return first paragraph and link and title
+    return first_paragraph + f' [{title}]({link})'
 
 
 def get_link_strings(links: dict) -> (str, str, str):
@@ -90,10 +100,10 @@ class Share(commands.Cog):
             color=0x00FF00
         )
         embed.set_thumbnail(url=cover_art)
-        if song_info['summary'] is not None:
+        if song_info['summary'] != '':
             embed.add_field(name="Summary", value=shorten_summary(song_info['summary']), inline=False)
-        # if 'tags' in song_info:
-        #     embed.set_footer(text=f"Tags: {', '.join(song_info['tags'])}")
+        if 'tags' in song_info and song_info['tags'] is not []:
+            embed.set_footer(text=f"Tags: {', '.join(song_info['tags'])}")
 
         stream, buy, watch = get_link_strings(links)
         if stream != '':

@@ -2,16 +2,16 @@ import requests
 import logging
 
 platforms = [
-    'spotify',
-    'itunes',
-    'youtube',
-    'deezer',
-    'soundcloud',
-    'appleMusic',
-    'amazonStore',
     'amazonMusic',
+    'amazonStore',
+    'appleMusic',
+    'deezer',
     'googleStore',
+    'itunes',
+    'soundcloud',
+    'spotify',
     'tidal',
+    'youtube',
     'youtubeMusic'
 ]
 
