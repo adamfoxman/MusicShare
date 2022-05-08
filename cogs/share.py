@@ -8,20 +8,43 @@ from api.getter import Getter
 debug_guild = list(map(int, os.getenv("DEBUG_GUILDS").split(",")))
 
 stream_platforms = {
-    'spotify': 'Spotify',
+    'amazonMusic': 'Amazon Music',
+    'appleMusic': 'Apple Music',
     'deezer': 'Deezer',
     'soundcloud': 'SoundCloud',
-    'appleMusic': 'Apple Music',
-    'amazonMusic': 'Amazon Music',
+    'spotify': 'Spotify',
     'tidal': 'Tidal',
     'youtubeMusic': 'YouTube Music',
 }
 
 buy_platforms = {
     'itunes': 'iTunes',
-    'amazonStore': 'Amazon',
-    'googleStore': 'Google Play Store',
+    'amazonStore': 'Amazon'
 }
+
+
+def shorten_summary(summary: str) -> str:
+    return summary.split("\n")[0]
+
+
+def get_link_strings(links: dict) -> (str, str, str):
+    s = ''
+    b = ''
+    w = ''
+    for platform, link in links.items():
+        if platform in stream_platforms:
+            if s != '':
+                s += ' | '
+            s += f'[{stream_platforms[platform]}]({link})'
+        elif platform in buy_platforms:
+            if b != '':
+                b += ' | '
+            b += f'[{buy_platforms[platform]}]({link})'
+        else:
+            if w != '':
+                w += ' | '
+            w += f'[{platform.capitalize()}]({link})'
+    return s, b, w
 
 
 class Share(commands.Cog):
@@ -42,14 +65,14 @@ class Share(commands.Cog):
         await interaction.response.defer()
         logging.info(f"{interaction.user.name} is sharing {song_link}")
         try:
-            artist, title, cover_art, links = self.getter.get_song_info(song_link)
+            artist, title, cover_art, song_info, links = self.getter.get_song_info(song_link)
         except Exception as e:
             await interaction.send(f"Error: {e}")
             raise e
         if len(links) == 0:
             await interaction.send(embed=self._generate_lite_embed(artist, title, cover_art, song_link))
             return
-        await interaction.send(embed=self._generate_embed(artist, title, cover_art, links))
+        await interaction.send(embed=self._generate_embed(artist, title, cover_art, song_info, links))
 
     def _generate_lite_embed(self, artist: str, title: str, cover_art: str, url: str):
         embed = nextcord.Embed(
@@ -60,26 +83,25 @@ class Share(commands.Cog):
         embed.set_thumbnail(url=cover_art)
         return embed
 
-    def _generate_embed(self, artist: str, title: str, cover_art: str, links: dict):
+    def _generate_embed(self, artist: str, title: str, cover_art: str, song_info: dict, links: dict):
         embed = nextcord.Embed(
             title=f"{artist} - {title}",
-            description=f'Found {len(links)} links for this song',
+            description=f'From {song_info["album"] if "album" in song_info else "Unknown"}',
             color=0x00FF00
         )
         embed.set_thumbnail(url=cover_art)
-        for platform, link in links.items():
-            if platform in stream_platforms:
-                embed.add_field(name=stream_platforms[platform],
-                                value=f"[Click here]({link}) to listen on {stream_platforms[platform]}",
-                                inline=True)
-            elif platform in buy_platforms:
-                embed.add_field(name=buy_platforms[platform],
-                                value=f"[Click here]({link}) to buy on {buy_platforms[platform]}",
-                                inline=True)
-            else:
-                embed.add_field(name=platform.capitalize(),
-                                value=f"[Click here]({link}) to watch on {platform.capitalize()}",
-                                inline=True)
+        if song_info['summary'] is not None:
+            embed.add_field(name="Summary", value=shorten_summary(song_info['summary']), inline=False)
+        # if 'tags' in song_info:
+        #     embed.set_footer(text=f"Tags: {', '.join(song_info['tags'])}")
+
+        stream, buy, watch = get_link_strings(links)
+        if stream != '':
+            embed.add_field(name="Stream", value=stream, inline=False)
+        if buy != '':
+            embed.add_field(name="Buy", value=buy, inline=False)
+        if watch != '':
+            embed.add_field(name="Watch", value=watch, inline=False)
 
         return embed
 
