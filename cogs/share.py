@@ -3,7 +3,7 @@ import os
 from nextcord.ext import commands
 import nextcord
 import logging
-from songlink.songlink import SongLink
+from api.getter import Getter
 
 debug_guild = list(map(int, os.getenv("DEBUG_GUILDS").split(",")))
 
@@ -27,7 +27,7 @@ buy_platforms = {
 class Share(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.songlink = SongLink()
+        self.getter = Getter()
 
     @nextcord.slash_command(
         guild_ids=debug_guild,
@@ -40,8 +40,9 @@ class Share(commands.Cog):
                                                           required=True)
                     ):
         await interaction.response.defer()
+        logging.info(f"{interaction.user.name} is sharing {song_link}")
         try:
-            artist, title, cover_art, links = self.songlink.get_song(song_link)
+            artist, title, cover_art, links = self.getter.get_song_info(song_link)
         except Exception as e:
             await interaction.send(f"Error: {e}")
             raise e

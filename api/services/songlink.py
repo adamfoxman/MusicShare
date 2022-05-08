@@ -16,11 +16,11 @@ platforms = [
 ]
 
 
-class SongLink():
+class SongLink:
     def __init__(self, key: str = None):
         self.key = key
 
-    def get_song(self, song_link: str):
+    def get_song(self, song_link: str) -> (str, str, str, dict):
         """
         Get the song from the song link
         :param song_link:
@@ -50,7 +50,7 @@ class SongLink():
 
         return response.json()
 
-    def _get_song_info(self, response: dict):
+    def _get_song_info(self, response: dict) -> (str, str, str):
         """
         Get the song info from the song link
         :param song_link:
@@ -61,7 +61,6 @@ class SongLink():
         title = response['entitiesByUniqueId'][entity_unique_id]['title']
         cover_art = response['entitiesByUniqueId'][entity_unique_id]['thumbnailUrl']
         return artist, title, cover_art
-
 
     def _get_song_links(self, response: dict) -> dict:
         """
@@ -77,4 +76,3 @@ class SongLink():
                 links[platform] = response["linksByPlatform"][platform]["url"]
 
         return links
-

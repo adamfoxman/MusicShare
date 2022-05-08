@@ -21,6 +21,7 @@ def main():
         async def on_ready():
             logging.info(f"Logged in as {bot.user.name}")
             print(f"MusicShare bot started!\nUser: {bot.user}")
+
         bot.run(os.getenv('DISCORD_TOKEN'))
     except Exception as e:
         print(f"Couldn't start MusicShare bot: {e}")
