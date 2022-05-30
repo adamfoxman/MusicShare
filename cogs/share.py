@@ -57,6 +57,39 @@ def get_link_strings(links: dict) -> (str, str, str):
     return s, b, w
 
 
+def _generate_lite_embed(artist: str, title: str, cover_art: str, url: str):
+    embed = nextcord.Embed(
+        title=f"{artist} - {title}",
+        description=f"[Click here]({url}) to listen",
+        color=0x00FF00
+    )
+    embed.set_thumbnail(url=cover_art)
+    return embed
+
+
+def _generate_embed(artist: str, title: str, cover_art: str, song_info: dict, links: dict):
+    embed = nextcord.Embed(
+        title=f"{artist} - {title}",
+        description=f'From {song_info["album"] if "album" in song_info else "Unknown"}',
+        color=0x00FF00
+    )
+    embed.set_thumbnail(url=cover_art)
+    if song_info['summary'] != '':
+        embed.add_field(name="Summary", value=shorten_summary(song_info['summary']), inline=False)
+    if 'tags' in song_info and song_info['tags'] is not []:
+        embed.set_footer(text=f"Tags: {', '.join(song_info['tags'])}")
+
+    stream, buy, watch = get_link_strings(links)
+    if stream != '':
+        embed.add_field(name="Stream", value=stream, inline=False)
+    if buy != '':
+        embed.add_field(name="Buy", value=buy, inline=False)
+    if watch != '':
+        embed.add_field(name="Watch", value=watch, inline=False)
+
+    return embed
+
+
 class Share(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -80,40 +113,9 @@ class Share(commands.Cog):
             await interaction.send(f"Error: {e}")
             raise e
         if len(links) == 0:
-            await interaction.send(embed=self._generate_lite_embed(artist, title, cover_art, song_link))
+            await interaction.send(embed=_generate_lite_embed(artist, title, cover_art, song_link))
             return
-        await interaction.send(embed=self._generate_embed(artist, title, cover_art, song_info, links))
-
-    def _generate_lite_embed(self, artist: str, title: str, cover_art: str, url: str):
-        embed = nextcord.Embed(
-            title=f"{artist} - {title}",
-            description=f"[Click here]({url}) to listen",
-            color=0x00FF00
-        )
-        embed.set_thumbnail(url=cover_art)
-        return embed
-
-    def _generate_embed(self, artist: str, title: str, cover_art: str, song_info: dict, links: dict):
-        embed = nextcord.Embed(
-            title=f"{artist} - {title}",
-            description=f'From {song_info["album"] if "album" in song_info else "Unknown"}',
-            color=0x00FF00
-        )
-        embed.set_thumbnail(url=cover_art)
-        if song_info['summary'] != '':
-            embed.add_field(name="Summary", value=shorten_summary(song_info['summary']), inline=False)
-        if 'tags' in song_info and song_info['tags'] is not []:
-            embed.set_footer(text=f"Tags: {', '.join(song_info['tags'])}")
-
-        stream, buy, watch = get_link_strings(links)
-        if stream != '':
-            embed.add_field(name="Stream", value=stream, inline=False)
-        if buy != '':
-            embed.add_field(name="Buy", value=buy, inline=False)
-        if watch != '':
-            embed.add_field(name="Watch", value=watch, inline=False)
-
-        return embed
+        await interaction.send(embed=_generate_embed(artist, title, cover_art, song_info, links))
 
 
 def setup(bot):
