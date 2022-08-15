@@ -20,7 +20,7 @@ def get_member(bot, guild_id: int, user_id: int):
 
 
 def get_spotify_activity(member: Member):
-    return next((activity for activity in member.activities if activity.type == nextcord.Spotify), None)
+    return next((activity for activity in member.activities if isinstance(activity, nextcord.Spotify)), None)
 
 
 class Spotify(commands.Cog):
