@@ -13,8 +13,10 @@ logging.basicConfig(
 
 def main():
     logging.info("Starting...")
-    bot = commands.Bot()
+    intents = nextcord.Intents().all()
+    bot = commands.Bot(intents=intents)
     bot.load_extension('cogs.share')
+    bot.load_extension('cogs.spotify')
 
     try:
         @bot.event
